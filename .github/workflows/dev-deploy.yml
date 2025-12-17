@@ -25,8 +25,6 @@ jobs:
       run: |
         # Copy .env.dev to .env.production for build
         cp .env.dev .env.production
-        # Inject environment variables from GitHub Secrets
-        echo "NEXT_PUBLIC_PORTONE_STORE_ID=${{ secrets.PORTONE_STORE_ID }}" >> .env.production
         echo "Environment file created for build"
 
     - name: Run linter
@@ -103,8 +101,6 @@ jobs:
 
           echo "=== [3/11] Setting up environment file ==="
           cp .env.dev .env.production.local
-          # Inject environment variables
-          echo "NEXT_PUBLIC_PORTONE_STORE_ID=${{ secrets.PORTONE_STORE_ID }}" >> .env.production.local
           echo "✓ Environment configured for production"
 
           echo "=== [4/11] Creating logs directory ==="

@@ -20,10 +20,11 @@ export default function LoginPage() {
     setSubmitting(true);
     setErrorMessage(null);
 
-    const result = await signIn("credentials", {
+    const result = await signIn("driver-credentials", {
       redirect: false,
       username,
       password,
+      redirectTo: "/",
     });
 
     if (result?.error === "TWO_FACTOR_REQUIRED") {
@@ -46,10 +47,11 @@ export default function LoginPage() {
     setSubmitting(true);
     setErrorMessage(null);
 
-    const result = await signIn("credentials", {
+    const result = await signIn("driver-credentials", {
       redirect: false,
       username,
       verificationCode,
+      redirectTo: "/",
     });
 
     if (result?.error) {

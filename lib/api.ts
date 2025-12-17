@@ -70,9 +70,7 @@ export interface DriverPickupItem {
   createdAt?: string;
 }
 
-export interface DriverPickupDetail extends DriverPickupItem {
-  // Additional detail fields if needed
-}
+export type DriverPickupDetail = DriverPickupItem;
 
 export interface CompletePickupRequest {
   collectedWeight: number;

@@ -1,4 +1,5 @@
-'use client';
+"use client";
+/* eslint-disable @next/next/no-img-element */
 
 import {useParams} from 'next/navigation';
 import {useGetPickupDetail} from '@/src/api/generated/드라이버-수거-관리/드라이버-수거-관리';

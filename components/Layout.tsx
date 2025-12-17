@@ -2,7 +2,7 @@
 
 import {ReactNode, useEffect, useState} from 'react';
 import Link from 'next/link';
-import {usePathname, useRouter} from 'next/navigation';
+import {usePathname} from 'next/navigation';
 import {signOut} from 'next-auth/react';
 
 interface LayoutProps {
@@ -11,7 +11,6 @@ interface LayoutProps {
 
 export default function Layout({ children }: LayoutProps) {
   const pathname = usePathname();
-  const router = useRouter();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [isDesktop, setIsDesktop] = useState(false);
 

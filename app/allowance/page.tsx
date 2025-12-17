@@ -29,8 +29,9 @@ export default function AllowancePage() {
       setLoading(true);
       const data = await driverApi.getThisMonthAllowance();
       setAllowance(data);
-    } catch (err: any) {
-      setError(err.response?.data?.message || '수당 정보를 불러오는데 실패했습니다');
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : '수당 정보를 불러오는데 실패했습니다';
+      setError(message);
     } finally {
       setLoading(false);
     }
@@ -47,8 +48,9 @@ export default function AllowancePage() {
       setError(null);
       const data = await driverApi.getAllowance(startDate, endDate);
       setAllowance(data);
-    } catch (err: any) {
-      setError(err.response?.data?.message || '수당 정보를 불러오는데 실패했습니다');
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : '수당 정보를 불러오는데 실패했습니다';
+      setError(message);
     } finally {
       setLoading(false);
     }

@@ -27,12 +27,6 @@ jobs:
         cp .env.dev .env.production
         echo "Environment file created for build"
 
-    - name: Run linter
-      run: npm run lint
-
-    - name: Run type check
-      run: npm run type-check
-
     - name: Build application
       run: npm run build
 

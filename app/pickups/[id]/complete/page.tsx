@@ -1,4 +1,5 @@
-'use client';
+"use client";
+/* eslint-disable @next/next/no-img-element */
 
 import {useState} from 'react';
 import {useParams, useRouter} from 'next/navigation';
@@ -66,7 +67,7 @@ export default function CompletePickupPage() {
         };
         reader.readAsDataURL(file);
       }
-    } catch (err) {
+    } catch {
       setUploading(false);
     }
   };
@@ -88,7 +89,14 @@ export default function CompletePickupPage() {
     });
   };
 
-  const errorMessage = error instanceof Error ? error.message : '수거 완료 처리에 실패했습니다';
+  const errorMessage =
+    error instanceof Error
+      ? error.message
+      : typeof error === 'string'
+      ? error
+      : error
+      ? '수거 완료 처리에 실패했습니다'
+      : null;
 
   return (
     <div className="p-6">
@@ -105,7 +113,7 @@ export default function CompletePickupPage() {
         </Link>
       </div>
 
-      {error && (
+      {errorMessage && (
         <div className="mb-6 p-4 bg-red-50 border border-red-200 text-red-700 rounded-lg">
           {errorMessage}
         </div>

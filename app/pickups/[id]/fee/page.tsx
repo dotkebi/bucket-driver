@@ -2,6 +2,7 @@
 
 import {useParams} from 'next/navigation';
 import {useGetFeeEstimate} from '@/src/api/generated/드라이버-수거-관리/드라이버-수거-관리';
+import type {IncentiveDetail} from '@/src/api/models';
 import Link from 'next/link';
 
 export default function PickupFeePage() {
@@ -60,19 +61,19 @@ export default function PickupFeePage() {
         <div className="grid md:grid-cols-4 gap-4">
           <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
             <p className="text-sm text-gray-600 mb-2">기본 수당</p>
-            <p className="text-2xl font-bold text-gray-900">₩{fee.baseAllowance.toLocaleString()}</p>
+            <p className="text-2xl font-bold text-gray-900">₩{(fee.baseAllowance ?? 0).toLocaleString()}</p>
           </div>
           <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
             <p className="text-sm text-gray-600 mb-2">무게별 수당</p>
-            <p className="text-2xl font-bold text-gray-900">₩{fee.weightBasedFee.toLocaleString()}</p>
+            <p className="text-2xl font-bold text-gray-900">₩{(fee.weightBasedFee ?? 0).toLocaleString()}</p>
           </div>
           <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
             <p className="text-sm text-gray-600 mb-2">인센티브</p>
-            <p className="text-2xl font-bold text-green-600">₩{fee.incentiveAmount.toLocaleString()}</p>
+            <p className="text-2xl font-bold text-green-600">₩{(fee.incentiveAmount ?? 0).toLocaleString()}</p>
           </div>
           <div className="bg-gradient-to-br from-blue-600 to-blue-700 rounded-xl shadow-lg p-6 text-white">
             <p className="text-sm text-blue-100 mb-2">총 수당</p>
-            <p className="text-3xl font-bold">₩{fee.totalFee.toLocaleString()}</p>
+            <p className="text-3xl font-bold">₩{(fee.totalFee ?? 0).toLocaleString()}</p>
           </div>
         </div>
 
@@ -95,7 +96,7 @@ export default function PickupFeePage() {
                     <p className="text-sm text-gray-500">고정 기본 수당</p>
                   </div>
                 </div>
-                <p className="text-lg font-semibold text-gray-900">₩{fee.baseAllowance.toLocaleString()}</p>
+                <p className="text-lg font-semibold text-gray-900">₩{(fee.baseAllowance ?? 0).toLocaleString()}</p>
               </div>
 
               <div className="flex justify-between items-center py-3 border-b border-gray-100">
@@ -110,7 +111,7 @@ export default function PickupFeePage() {
                     <p className="text-sm text-gray-500">수거한 무게에 따른 수당</p>
                   </div>
                 </div>
-                <p className="text-lg font-semibold text-gray-900">₩{fee.weightBasedFee.toLocaleString()}</p>
+                <p className="text-lg font-semibold text-gray-900">₩{(fee.weightBasedFee ?? 0).toLocaleString()}</p>
               </div>
 
               {fee.incentiveDetails && fee.incentiveDetails.length > 0 && (
@@ -125,21 +126,21 @@ export default function PickupFeePage() {
                       <p className="font-medium text-gray-900">인센티브</p>
                     </div>
                   </div>
-                  {fee.incentiveDetails.map((incentive, index) => (
+                  {fee.incentiveDetails.map((incentive: IncentiveDetail, index: number) => (
                     <div key={index} className="ml-13 flex justify-between items-center py-2 pl-4 border-l-2 border-green-200">
                       <div>
-                        <p className="font-medium text-gray-900">{incentive.type}</p>
+                        <p className="font-medium text-gray-900">{incentive.policyName ?? incentive.policyType ?? '인센티브'}</p>
                         {incentive.description && (
                           <p className="text-sm text-gray-500">{incentive.description}</p>
                         )}
                       </div>
-                      <p className="text-lg font-semibold text-green-600">₩{incentive.amount.toLocaleString()}</p>
+                      <p className="text-lg font-semibold text-green-600">₩{(incentive.rewardAmount ?? 0).toLocaleString()}</p>
                     </div>
                   ))}
                 </div>
               )}
 
-              {(!fee.incentiveDetails || fee.incentiveDetails.length === 0) && fee.incentiveAmount > 0 && (
+              {(!fee.incentiveDetails || fee.incentiveDetails.length === 0) && (fee.incentiveAmount ?? 0) > 0 && (
                 <div className="flex justify-between items-center py-3 border-b border-gray-100">
                   <div className="flex items-center gap-3">
                     <div className="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center">
@@ -152,13 +153,13 @@ export default function PickupFeePage() {
                       <p className="text-sm text-gray-500">추가 인센티브</p>
                     </div>
                   </div>
-                  <p className="text-lg font-semibold text-green-600">₩{fee.incentiveAmount.toLocaleString()}</p>
+                  <p className="text-lg font-semibold text-green-600">₩{(fee.incentiveAmount ?? 0).toLocaleString()}</p>
                 </div>
               )}
 
               <div className="flex justify-between items-center py-4 pt-6 border-t-2 border-gray-200">
                 <p className="text-xl font-bold text-gray-900">총 수당</p>
-                <p className="text-2xl font-bold text-blue-600">₩{fee.totalFee.toLocaleString()}</p>
+                <p className="text-2xl font-bold text-blue-600">₩{(fee.totalFee ?? 0).toLocaleString()}</p>
               </div>
             </div>
           </div>

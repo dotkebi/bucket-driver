@@ -26,11 +26,11 @@ export default function CompletedPickupsPage() {
         <p className="text-gray-600">완료한 수거 내역을 확인하세요</p>
       </div>
 
-      {error && (
+      {error ? (
         <div className="mb-6 p-4 bg-red-50 border border-red-200 text-red-700 rounded-lg">
           {error instanceof Error ? error.message : '수거신청을 불러오는데 실패했습니다'}
         </div>
-      )}
+      ) : null}
 
       {pickups.length === 0 ? (
         <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-12 text-center">

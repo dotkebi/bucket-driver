@@ -40,11 +40,11 @@ export default function AssignedPickupsPage() {
         <p className="text-gray-600">오늘 수거해야 할 목록을 확인하세요</p>
       </div>
 
-      {error && (
+      {error ? (
         <div className="mb-6 p-4 bg-red-50 border border-red-200 text-red-700 rounded-lg">
           {error instanceof Error ? error.message : '수거신청을 불러오는데 실패했습니다'}
         </div>
-      )}
+      ) : null}
 
       {pickups.length === 0 ? (
         <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-12 text-center">
@@ -78,7 +78,7 @@ export default function AssignedPickupsPage() {
                           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                           </svg>
-                          <span>{pickup.timeSlot} {pickup.specificTime ? `- ${pickup.specificTime}` : ''}</span>
+                          <span>{pickup.timeSlot}</span>
                         </div>
                       )}
                     </div>

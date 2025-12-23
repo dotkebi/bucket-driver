@@ -6,8 +6,14 @@ const redirectToLogin = async () => {
   window.location.replace('/login');
 };
 
+const rawBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8082';
+const upgradedBaseUrl =
+  typeof window !== 'undefined' && rawBaseUrl.startsWith('http://dev-bucket-admin.mjkompany.com')
+    ? rawBaseUrl.replace('http://', 'https://')
+    : rawBaseUrl;
+
 export const AXIOS_INSTANCE = Axios.create({
-  baseURL: process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8082',
+  baseURL: upgradedBaseUrl,
   maxRedirects: 0,
   validateStatus: (status) => status >= 200 && status < 400,
 });

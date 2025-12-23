@@ -6,11 +6,11 @@ on:
 
 env:
   AWS_REGION: ap-northeast-2
-  ECR_REPOSITORY: driver-prod-app
-  ECS_CLUSTER: driver-prod-cluster
-  ECS_SERVICE: driver-prod-service
-  ECS_TASK_DEFINITION: driver-prod-task
-  CONTAINER_NAME: driver-prod-container
+  ECR_REPOSITORY: bucket-prod-driver
+  ECS_CLUSTER: bucket-prod-driver-cluster
+  ECS_SERVICE: bucket-prod-driver-service
+  ECS_TASK_DEFINITION: bucket-prod-driver-task
+  CONTAINER_NAME: bucket-prod-driver-container
 
 jobs:
   deploy:

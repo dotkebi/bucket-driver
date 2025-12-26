@@ -12,9 +12,11 @@ WORKDIR /app
 
 # Build arguments for NEXT_PUBLIC_* variables (embedded at build time)
 ARG NEXT_PUBLIC_API_URL
+ARG AUTH_SECRET
 
 # Set as environment variables for the build process
 ENV NEXT_PUBLIC_API_URL=$NEXT_PUBLIC_API_URL
+ENV AUTH_SECRET=$AUTH_SECRET
 
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .

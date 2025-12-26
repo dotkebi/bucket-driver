@@ -7,8 +7,11 @@ import {
 } from '@/src/api/generated/드라이버-수거-관리/드라이버-수거-관리';
 
 export default function Home() {
-  const { data: assignedPickups = [] } = useGetAssignedPickups();
-  const { data: completedPickups = [] } = useGetPickupsByStatus('COMPLETED');
+  const { data: assignedData } = useGetAssignedPickups();
+  const { data: completedData } = useGetPickupsByStatus('COMPLETED');
+
+  const assignedPickups = Array.isArray(assignedData) ? assignedData : [];
+  const completedPickups = Array.isArray(completedData) ? completedData : [];
 
   return (
     <div className="p-6">

@@ -1,0 +1,37 @@
+# Terraform 변수 값 설정 예시
+# 실제 사용 시 terraform.tfvars 파일을 생성하고 아래 값들을 설정하세요
+
+# AWS 설정
+aws_region  = "ap-northeast-2"
+aws_profile = "default"
+
+# 프로젝트 설정
+project_name = "bucket"
+environment  = "prod"
+
+# 네트워크 설정 (기존 인프라 참조)
+vpc_id                 = "vpc-xxxxxxxxxxxxxxxxx"  # 기존 VPC ID
+private_subnet_ids     = [
+  "subnet-xxxxxxxxxxxxxxxxx",  # Private Subnet 1
+  "subnet-yyyyyyyyyyyyyyyyy"   # Private Subnet 2
+]
+alb_security_group_id  = "sg-xxxxxxxxxxxxxxxxx"   # 기존 ALB Security Group ID
+target_group_arn       = "arn:aws:elasticloadbalancing:ap-northeast-2:xxxxxxxxxxxx:targetgroup/driver-tg/xxxxxxxxxxxxxxxx"  # Driver용 Target Group ARN
+
+# ECS 설정
+task_cpu       = "256"   # 0.25 vCPU
+task_memory    = "512"   # 512 MB
+desired_count  = 1       # 실행할 태스크 수
+container_port = 3002    # Driver 앱 포트
+
+# Auto Scaling 설정
+autoscaling_min_capacity  = 1
+autoscaling_max_capacity  = 4
+autoscaling_target_cpu    = 70
+autoscaling_target_memory = 80
+
+# 태그
+tags = {
+  Service = "driver"
+  Team    = "platform"
+}

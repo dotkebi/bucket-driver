@@ -1,8 +1,53 @@
 'use client';
 
-import {useEffect, useState} from 'react';
-import {DriverAllowance, driverApi} from '@/lib/api';
+// import {useCallback, useEffect, useState} from 'react';
+// import {useGetAllowance, useGetThisMonthAllowance} from '@/src/api/generated/드라이버-수거-관리/드라이버-수거-관리';
+// import type {DriverAllowance} from '@/src/api/models';
 
+export default function AllowancePage() {
+  // TODO: API 엔드포인트 구현 후 활성화
+  // const [allowance, setAllowance] = useState<DriverAllowance | null>(null);
+  // const [loading, setLoading] = useState(true);
+  // const [error, setError] = useState<string | null>(null);
+  // const [startDate, setStartDate] = useState('');
+  // const [endDate, setEndDate] = useState('');
+
+  return (
+    <div className="p-6">
+      <div className="mb-6">
+        <h1 className="text-2xl font-bold text-gray-900 mb-2">수당 조회</h1>
+        <p className="text-gray-600">수당 내역을 확인하세요</p>
+      </div>
+
+      <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-6">
+        <div className="flex items-start">
+          <svg className="w-6 h-6 text-yellow-600 mr-3 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+          </svg>
+          <div>
+            <h3 className="text-lg font-semibold text-yellow-900 mb-2">
+              준비 중인 기능입니다
+            </h3>
+            <p className="text-yellow-800">
+              수당 조회 API가 아직 구현되지 않았습니다.<br />
+              백엔드 API 엔드포인트 구현 후 이 페이지가 활성화됩니다.
+            </p>
+            <div className="mt-4 text-sm text-yellow-700">
+              <p className="font-medium">필요한 API 엔드포인트:</p>
+              <ul className="list-disc list-inside mt-2 space-y-1">
+                <li><code className="bg-yellow-100 px-2 py-0.5 rounded">GET /api/driver/allowance/this-month</code></li>
+                <li><code className="bg-yellow-100 px-2 py-0.5 rounded">GET /api/driver/allowance?startDate=&endDate=</code></li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// 원본 코드 (API 구현 후 복원)
+/*
 export default function AllowancePage() {
   const [allowance, setAllowance] = useState<DriverAllowance | null>(null);
   const [loading, setLoading] = useState(true);
@@ -10,32 +55,36 @@ export default function AllowancePage() {
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
 
-  useEffect(() => {
-    loadThisMonthAllowance();
-    setDefaultDates();
-  }, []);
-
-  const setDefaultDates = () => {
+  const setDefaultDates = useCallback(() => {
     const now = new Date();
     const start = new Date(now.getFullYear(), now.getMonth(), 1);
     const end = new Date(now.getFullYear(), now.getMonth() + 1, 0);
 
     setStartDate(start.toISOString().split('T')[0]);
     setEndDate(end.toISOString().split('T')[0]);
-  };
+  }, []);
 
-  const loadThisMonthAllowance = async () => {
+  const { refetch: fetchThisMonthAllowance } = useGetThisMonthAllowance(undefined, {
+    query: { enabled: false },
+  });
+
+  const { refetch: fetchAllowance } = useGetAllowance(
+    { startDate, endDate },
+    { query: { enabled: false } }
+  );
+
+  const loadThisMonthAllowance = useCallback(async () => {
     try {
       setLoading(true);
-      const data = await driverApi.getThisMonthAllowance();
-      setAllowance(data);
+      const { data } = await fetchThisMonthAllowance();
+      setAllowance(data as DriverAllowance);
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : '수당 정보를 불러오는데 실패했습니다';
       setError(message);
     } finally {
       setLoading(false);
     }
-  };
+  }, [fetchThisMonthAllowance]);
 
   const loadAllowance = async () => {
     if (!startDate || !endDate) {
@@ -46,8 +95,8 @@ export default function AllowancePage() {
     try {
       setLoading(true);
       setError(null);
-      const data = await driverApi.getAllowance(startDate, endDate);
-      setAllowance(data);
+      const { data } = await fetchAllowance();
+      setAllowance(data as DriverAllowance);
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : '수당 정보를 불러오는데 실패했습니다';
       setError(message);
@@ -55,6 +104,11 @@ export default function AllowancePage() {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    loadThisMonthAllowance();
+    setDefaultDates();
+  }, [loadThisMonthAllowance, setDefaultDates]);
 
   if (loading && !allowance) {
     return (
@@ -176,3 +230,4 @@ export default function AllowancePage() {
     </div>
   );
 }
+*/

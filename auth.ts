@@ -122,11 +122,11 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       }
 
       if (
-          token.accessToken &&
-          typeof token.accessTokenExpires === "number" &&
-          Date.now() < token.accessTokenExpires
+        token.accessToken &&
+        typeof token.accessTokenExpires === "number" &&
+        Date.now() < token.accessTokenExpires
       ) {
-          return token;
+        return token;
       }
 
       return refreshAccessToken(token);
@@ -149,5 +149,6 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     strategy: "jwt",
     maxAge: 8 * 60 * 60,
   },
+  secret: process.env.AUTH_SECRET,
   trustHost: true,
 });

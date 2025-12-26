@@ -92,13 +92,15 @@ resource "aws_ecs_task_definition" "main" {
 
       essential = true
 
-      healthCheck = {
-        command     = ["CMD-SHELL", "wget -q --spider http://localhost:${var.container_port}/health || exit 1"]
-        interval    = 30
-        timeout     = 10
-        retries     = 5
-        startPeriod = 120
-      }
+      # Container health check disabled - using ALB target group health check instead
+      # Next.js standalone apps work better with ALB health checks
+      # healthCheck = {
+      #   command     = ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:${var.container_port}/health || exit 1"]
+      #   interval    = 30
+      #   timeout     = 10
+      #   retries     = 3
+      #   startPeriod = 180
+      # }
     }
   ])
 

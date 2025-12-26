@@ -76,8 +76,16 @@ resource "aws_ecs_task_definition" "main" {
           value = tostring(var.container_port)
         },
         {
-          name  = "NEXT_PUBLIC_API_URL"
+          name  = "NEXT_PUBLIC_API_BASE_URL"
           value = var.next_public_api_url
+        },
+        {
+          name  = "AUTH_SECRET"
+          value = var.auth_secret
+        },
+        {
+          name  = "NEXTAUTH_URL"
+          value = var.nextauth_url
         }
       ]
 

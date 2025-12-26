@@ -5,6 +5,10 @@
  * BUCKET Admin 시스템 API 문서
  * OpenAPI spec version: 1.0.0
  */
+import {
+  useMutation,
+  useQuery
+} from '@tanstack/react-query';
 import type {
   DataTag,
   DefinedInitialDataOptions,
@@ -19,7 +23,6 @@ import type {
   UseQueryOptions,
   UseQueryResult
 } from '@tanstack/react-query';
-import {useMutation, useQuery} from '@tanstack/react-query';
 
 import type {
   LoginRequest,
@@ -29,7 +32,7 @@ import type {
   VerifyTwoFactorRequest
 } from '../../models';
 
-import {customInstance} from '../../mutator/custom-instance';
+import { customInstance } from '../../mutator/custom-instance';
 
 
 type SecondParameter<T extends (...args: never) => unknown> = Parameters<T>[1];

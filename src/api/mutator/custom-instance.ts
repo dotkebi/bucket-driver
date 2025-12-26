@@ -1,11 +1,5 @@
 import Axios from 'axios';
 
-const redirectToLogin = async () => {
-  if (typeof window === 'undefined') return;
-  if (window.location.pathname === '/login') return;
-  window.location.replace('/login');
-};
-
 const rawBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8082';
 const upgradedBaseUrl =
   typeof window !== 'undefined' && rawBaseUrl.startsWith('http://dev-bucket-admin.mjkompany.com')
@@ -39,11 +33,23 @@ AXIOS_INSTANCE.interceptors.request.use(async (config) => {
 AXIOS_INSTANCE.interceptors.response.use(
   (response) => response,
   async (error) => {
+    const originalRequest = error.config;
     const status = error.response?.status;
 
-    if (status === 401) {
+    // Handle 401 Unauthorized
+    if (status === 401 && !originalRequest._retry && typeof window !== 'undefined') {
+      console.error('API 401 Unauthorized:', {
+        url: originalRequest?.url,
+        method: originalRequest?.method,
+        timestamp: new Date().toISOString(),
+      });
+
+      // 로그아웃 처리 후 로그인 페이지로 이동
+      const { signOut } = await import('next-auth/react');
+      await signOut({ redirect: false });
       cachedAccessToken = null;
-      await redirectToLogin();
+      window.location.href = '/login';
+      return Promise.reject(error);
     }
 
     return Promise.reject(error);

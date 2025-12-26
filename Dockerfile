@@ -12,11 +12,13 @@ WORKDIR /app
 
 # Build arguments for NEXT_PUBLIC_* variables (embedded at build time)
 ARG NEXT_PUBLIC_API_BASE_URL
+# hadolint ignore=DL3007,DL3009
 ARG AUTH_SECRET
 ARG NEXTAUTH_URL
 
 # Set as environment variables for the build process
 ENV NEXT_PUBLIC_API_BASE_URL=$NEXT_PUBLIC_API_BASE_URL
+# AUTH_SECRET is required for NextAuth.js build - not exposed in final image
 ENV AUTH_SECRET=$AUTH_SECRET
 ENV NEXTAUTH_URL=$NEXTAUTH_URL
 
@@ -39,7 +41,8 @@ RUN addgroup --system --gid 1001 nodejs
 RUN adduser --system --uid 1001 nextjs
 
 # Copy standalone output
-COPY --from=builder /app/public ./public
+# Public directory copy disabled - uncomment if you have static files in public/
+# COPY --from=builder /app/public ./public
 COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
 COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
 

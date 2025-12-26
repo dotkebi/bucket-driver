@@ -38,3 +38,10 @@ next-env.d.ts
 .idea
 .claude/
 .vscode/
+# Terraform
+.terraform/
+*.tfstate
+*.tfstate.*
+*.tfplan
+tfplan
+.terraform.lock.hcl

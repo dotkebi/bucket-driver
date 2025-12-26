@@ -11,12 +11,12 @@ FROM node:lts-alpine AS builder
 WORKDIR /app
 
 # Build arguments for NEXT_PUBLIC_* variables (embedded at build time)
-ARG NEXT_PUBLIC_API_URL
+ARG NEXT_PUBLIC_API_BASE_URL
 ARG AUTH_SECRET
 ARG NEXTAUTH_URL
 
 # Set as environment variables for the build process
-ENV NEXT_PUBLIC_API_URL=$NEXT_PUBLIC_API_URL
+ENV NEXT_PUBLIC_API_BASE_URL=$NEXT_PUBLIC_API_BASE_URL
 ENV AUTH_SECRET=$AUTH_SECRET
 ENV NEXTAUTH_URL=$NEXTAUTH_URL
 
@@ -39,7 +39,7 @@ RUN addgroup --system --gid 1001 nodejs
 RUN adduser --system --uid 1001 nextjs
 
 # Copy standalone output
-#COPY --from=builder /app/public ./public
+COPY --from=builder /app/public ./public
 COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
 COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
 

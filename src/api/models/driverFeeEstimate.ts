@@ -5,7 +5,7 @@
  * BUCKET Admin 시스템 API 문서
  * OpenAPI spec version: 1.0.0
  */
-import type {IncentiveDetail} from './incentiveDetail';
+import type { IncentiveDetail } from './incentiveDetail';
 
 export interface DriverFeeEstimate {
   pickupId?: string;

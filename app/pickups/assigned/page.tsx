@@ -1,10 +1,11 @@
 'use client';
 
-import {useGetAssignedPickups} from '@/src/api/generated/드라이버-수거-관리/드라이버-수거-관리';
+import { useGetAssignedPickups } from '@/src/api/generated/드라이버-수거-관리/드라이버-수거-관리';
 import Link from 'next/link';
 
 export default function AssignedPickupsPage() {
-  const { data: pickups = [], isLoading, error } = useGetAssignedPickups();
+  const { data, isLoading, error } = useGetAssignedPickups();
+  const pickups = Array.isArray(data) ? data : [];
 
   const getStatusBadgeColor = (status: string) => {
     switch (status) {

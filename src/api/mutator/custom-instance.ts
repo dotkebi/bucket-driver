@@ -20,8 +20,20 @@ export const setAccessToken = (token: string | null) => {
 
 // Request interceptor
 AXIOS_INSTANCE.interceptors.request.use(async (config) => {
-  if (cachedAccessToken) {
-    config.headers.Authorization = `Bearer ${cachedAccessToken}`;
+  let token = cachedAccessToken;
+
+  // 만약 메모리에 토큰이 없고 브라우저 환경이라면 NextAuth 세션에서 직접 가져옴
+  if (!token && typeof window !== 'undefined') {
+    const { getSession } = await import('next-auth/react');
+    const session = await getSession();
+    if (session?.accessToken) {
+      token = session.accessToken;
+      cachedAccessToken = token;
+    }
+  }
+
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
   }
 
   delete (config.headers as Record<string, unknown>)['Accept-Language'];

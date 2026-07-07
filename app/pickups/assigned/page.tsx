@@ -21,6 +21,27 @@ export default function AssignedPickupsPage() {
     }
   };
 
+  const getStatusLabel = (status: string) => {
+    switch (status) {
+      case 'PENDING':
+        return '대기';
+      case 'ASSIGNED':
+        return '배정됨';
+      case 'CONFIRMED':
+        return '확정';
+      case 'IN_PROGRESS':
+        return '진행중';
+      case 'COMPLETED':
+        return '완료';
+      case 'CANCELLED':
+        return '취소';
+      case 'NO_SHOW':
+        return '부재';
+      default:
+        return status;
+    }
+  };
+
   if (isLoading) {
     return (
       <div className="p-6">
@@ -64,7 +85,7 @@ export default function AssignedPickupsPage() {
                     <div className="flex items-center gap-3 mb-2">
                       <h3 className="text-xl font-semibold text-gray-900">{pickup.customerName || '고객'}</h3>
                       <span className={`px-3 py-1 rounded-full text-xs font-medium ${getStatusBadgeColor(pickup.status || '')}`}>
-                        {pickup.status}
+                        {getStatusLabel(pickup.status || '')}
                       </span>
                     </div>
                     <div className="flex items-center gap-4 text-sm text-gray-600">

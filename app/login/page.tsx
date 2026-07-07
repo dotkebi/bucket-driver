@@ -1,11 +1,19 @@
 "use client";
 
-import {useState} from "react";
-import {useRouter} from "next/navigation";
+import {Suspense, useState} from "react";
+import {useRouter, useSearchParams} from "next/navigation";
 import {signIn} from "next-auth/react";
 
-export default function LoginPage() {
+function LoginForm() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  // 미들웨어가 넘겨준 원래 목적지. 오픈 리다이렉트 방지를 위해 내부 경로만 허용.
+  const rawCallback = searchParams.get("callbackUrl");
+  const callbackUrl =
+    rawCallback && rawCallback.startsWith("/") && !rawCallback.startsWith("//")
+      ? rawCallback
+      : "/";
+
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -14,6 +22,12 @@ export default function LoginPage() {
   const [verificationCode, setVerificationCode] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+
+  const goAfterLogin = () => {
+    router.push(callbackUrl);
+    // 서버 컴포넌트(미들웨어 가드)가 새 세션을 반영하도록 갱신
+    router.refresh();
+  };
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -24,22 +38,21 @@ export default function LoginPage() {
       redirect: false,
       username,
       password,
-      redirectTo: "/",
     });
 
-    if (result?.error === "TWO_FACTOR_REQUIRED") {
+    if (result?.code === "TWO_FACTOR_REQUIRED") {
       setTwoFactorRequired(true);
       setSubmitting(false);
       return;
     }
 
-    if (result?.error) {
+    if (result?.error || !result?.ok) {
       setErrorMessage("로그인에 실패했습니다. 계정 정보를 확인하세요.");
       setSubmitting(false);
       return;
     }
 
-    router.push("/");
+    goAfterLogin();
   };
 
   const handleVerifyTwoFactor = async (e: React.FormEvent) => {
@@ -51,16 +64,15 @@ export default function LoginPage() {
       redirect: false,
       username,
       verificationCode,
-      redirectTo: "/",
     });
 
-    if (result?.error) {
+    if (result?.error || !result?.ok) {
       setErrorMessage("인증 코드가 올바르지 않습니다.");
       setSubmitting(false);
       return;
     }
 
-    router.push("/");
+    goAfterLogin();
   };
 
   const loading = submitting;
@@ -226,5 +238,13 @@ export default function LoginPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense fallback={null}>
+      <LoginForm />
+    </Suspense>
   );
 }

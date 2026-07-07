@@ -4,6 +4,7 @@ import {ReactNode, useEffect, useState} from 'react';
 import Link from 'next/link';
 import {usePathname} from 'next/navigation';
 import {signOut} from 'next-auth/react';
+import {setAccessToken} from '@/src/api/mutator/custom-instance';
 
 interface LayoutProps {
   children: ReactNode;
@@ -13,6 +14,7 @@ export default function Layout({ children }: LayoutProps) {
   const pathname = usePathname();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [isDesktop, setIsDesktop] = useState(false);
+  const [loggingOut, setLoggingOut] = useState(false);
 
   useEffect(() => {
     const checkDesktop = () => {
@@ -33,7 +35,18 @@ export default function Layout({ children }: LayoutProps) {
   }, [pathname, isDesktop]);
 
   const handleLogout = async () => {
-    await signOut({ callbackUrl: '/login' });
+    if (loggingOut) return;
+
+    setLoggingOut(true);
+    setAccessToken(null);
+
+    try {
+      const result = await signOut({ redirect: false, redirectTo: '/login' });
+      window.location.replace(result.url || '/login');
+    } catch (error) {
+      console.error('Failed to sign out:', error);
+      setLoggingOut(false);
+    }
   };
 
   const menuItems = [
@@ -100,11 +113,13 @@ export default function Layout({ children }: LayoutProps) {
                 </div>
                 <div className="profile-dropdown-actions">
                   <button
+                    type="button"
                     onClick={handleLogout}
                     className="dropdown-action"
+                    disabled={loggingOut}
                   >
                     <span className="material-icons-outlined text-lg">power_settings_new</span>
-                    로그아웃
+                    {loggingOut ? '로그아웃 중...' : '로그아웃'}
                   </button>
                 </div>
               </div>

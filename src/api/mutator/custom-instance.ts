@@ -82,8 +82,16 @@ export const customInstance = async <T>(
     headers: headers as Record<string, string>,
   });
 
-  // response.data로 바로 접근할 수 있도록 실제 데이터만 반환
-  return response.data as T;
+  const payload = response.data;
+  if (payload && typeof payload === 'object' && 'resultCode' in payload && 'data' in payload) {
+    const result = payload as { resultCode?: string; resultMessage?: string; data?: T };
+    if (result.resultCode && result.resultCode !== 'ok') {
+      throw new Error(result.resultMessage || 'API request failed');
+    }
+    return result.data as T;
+  }
+
+  return payload as T;
 };
 
 export default customInstance;

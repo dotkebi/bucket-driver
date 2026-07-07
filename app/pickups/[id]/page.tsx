@@ -29,6 +29,27 @@ export default function PickupDetailPage() {
     }
   };
 
+  const getStatusLabel = (status: string) => {
+    switch (status) {
+      case 'PENDING':
+        return '대기';
+      case 'ASSIGNED':
+        return '배정됨';
+      case 'CONFIRMED':
+        return '확정';
+      case 'IN_PROGRESS':
+        return '진행중';
+      case 'COMPLETED':
+        return '완료';
+      case 'CANCELLED':
+        return '취소';
+      case 'NO_SHOW':
+        return '부재';
+      default:
+        return status;
+    }
+  };
+
   if (isLoading) {
     return (
       <div className="p-6">
@@ -75,7 +96,7 @@ export default function PickupDetailPage() {
           <div className="flex items-center justify-between">
             <h2 className="text-xl font-semibold text-gray-900">{pickup.customerName || '고객'}</h2>
             <span className={`px-3 py-1 rounded-full text-sm font-medium ${getStatusBadgeColor(pickup.status || '')}`}>
-              {pickup.status}
+              {getStatusLabel(pickup.status || '')}
             </span>
           </div>
         </div>

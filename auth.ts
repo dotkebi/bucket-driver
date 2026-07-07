@@ -1,4 +1,5 @@
-import NextAuth from "next-auth";
+import { isAxiosError } from "axios";
+import NextAuth, { CredentialsSignin } from "next-auth";
 import Credentials from "next-auth/providers/credentials";
 import { AXIOS_INSTANCE } from "./src/api/mutator/custom-instance";
 
@@ -9,6 +10,41 @@ interface TokenWithRefresh {
   id?: string;
   error?: string;
   [key: string]: unknown;
+}
+
+class TwoFactorRequiredError extends CredentialsSignin {
+  code = "TWO_FACTOR_REQUIRED";
+}
+
+function getAxiosErrorMessage(error: unknown) {
+  if (!isAxiosError(error)) {
+    return null;
+  }
+
+  const data = error.response?.data;
+  if (data && typeof data === "object") {
+    const body = data as Record<string, unknown>;
+    return (
+      (typeof body.resultMessage === "string" && body.resultMessage) ||
+      (typeof body.message === "string" && body.message) ||
+      error.message
+    );
+  }
+
+  if (typeof data === "string") {
+    try {
+      const body = JSON.parse(data) as Record<string, unknown>;
+      return (
+        (typeof body.resultMessage === "string" && body.resultMessage) ||
+        (typeof body.message === "string" && body.message) ||
+        data
+      );
+    } catch {
+      return data || error.message;
+    }
+  }
+
+  return error.message;
 }
 
 async function refreshAccessToken(token: TokenWithRefresh): Promise<TokenWithRefresh> {
@@ -80,9 +116,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
           });
 
           if (response.data?.requiresTwoFactor) {
-            const err: any = new Error("TWO_FACTOR_REQUIRED");
-            err.code = "TWO_FACTOR_REQUIRED";
-            throw err;
+            throw new TwoFactorRequiredError();
           }
 
           if (response.data?.accessToken && response.data?.refreshToken) {
@@ -95,8 +129,24 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
           }
 
           return null;
-        } catch (error: any) {
-          console.error("Authentication failed:", error);
+        } catch (error: unknown) {
+          if (error instanceof CredentialsSignin) {
+            throw error;
+          }
+
+          if (isAxiosError(error)) {
+            const status = error.response?.status;
+            const message = getAxiosErrorMessage(error);
+
+            if (status === 400 || status === 401) {
+              return null;
+            }
+
+            console.error("Driver authentication request failed:", { status, message });
+            return null;
+          }
+
+          console.error("Unexpected authentication failure:", error);
           return null;
         }
       },
@@ -151,4 +201,13 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
   },
   secret: process.env.AUTH_SECRET,
   trustHost: true,
+  logger: {
+    error(error) {
+      if (error instanceof CredentialsSignin) {
+        return;
+      }
+
+      console.error(error);
+    },
+  },
 });

@@ -7,6 +7,57 @@ import {useCompletePickup} from '@/src/api/generated/드라이버-수거-관리/
 import {useQueryClient} from '@tanstack/react-query';
 import Link from 'next/link';
 
+const MAX_UPLOAD_IMAGE_DIMENSION = 1280;
+const UPLOAD_IMAGE_QUALITY = 0.72;
+
+const readFileAsDataUrl = (file: File) =>
+  new Promise<string>((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => {
+      if (typeof reader.result === 'string') {
+        resolve(reader.result);
+      } else {
+        reject(new Error('이미지를 읽지 못했습니다'));
+      }
+    };
+    reader.onerror = () => reject(new Error('이미지를 읽지 못했습니다'));
+    reader.readAsDataURL(file);
+  });
+
+const loadImage = (src: string) =>
+  new Promise<HTMLImageElement>((resolve, reject) => {
+    const image = new Image();
+    image.onload = () => resolve(image);
+    image.onerror = () => reject(new Error('이미지를 불러오지 못했습니다'));
+    image.src = src;
+  });
+
+const resizeImageFileToDataUrl = async (file: File) => {
+  if (!file.type.startsWith('image/')) {
+    throw new Error('이미지 파일만 업로드할 수 있습니다');
+  }
+
+  const originalDataUrl = await readFileAsDataUrl(file);
+  const image = await loadImage(originalDataUrl);
+  const maxSide = Math.max(image.naturalWidth, image.naturalHeight);
+  const scale = maxSide > MAX_UPLOAD_IMAGE_DIMENSION
+    ? MAX_UPLOAD_IMAGE_DIMENSION / maxSide
+    : 1;
+  const width = Math.max(1, Math.round(image.naturalWidth * scale));
+  const height = Math.max(1, Math.round(image.naturalHeight * scale));
+  const canvas = document.createElement('canvas');
+  canvas.width = width;
+  canvas.height = height;
+
+  const context = canvas.getContext('2d');
+  if (!context) {
+    throw new Error('이미지를 리사이즈하지 못했습니다');
+  }
+
+  context.drawImage(image, 0, 0, width, height);
+  return canvas.toDataURL('image/jpeg', UPLOAD_IMAGE_QUALITY);
+};
+
 export default function CompletePickupPage() {
   const params = useParams();
   const router = useRouter();
@@ -17,6 +68,7 @@ export default function CompletePickupPage() {
   const [photoUrls, setPhotoUrls] = useState<string[]>([]);
   const [photoInput, setPhotoInput] = useState('');
   const [uploading, setUploading] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
 
   const { mutate: completePickup, isPending: submitting, error } = useCompletePickup({
     mutation: {
@@ -34,40 +86,32 @@ export default function CompletePickupPage() {
 
   const addPhotoUrl = () => {
     if (photoInput.trim()) {
-      setPhotoUrls([...photoUrls, photoInput.trim()]);
+      setPhotoUrls((prev) => [...prev, photoInput.trim()]);
       setPhotoInput('');
+      setSubmitError(null);
     }
   };
 
   const removePhotoUrl = (index: number) => {
-    setPhotoUrls(photoUrls.filter((_, i) => i !== index));
+    setPhotoUrls((prev) => prev.filter((_, i) => i !== index));
   };
 
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
     if (!files || files.length === 0) return;
 
-    // For now, we'll use FileReader to convert to base64 or URL
-    // In production, you'd upload to a file server first
+    const input = e.currentTarget;
     setUploading(true);
+    setSubmitError(null);
     try {
-      const newUrls: string[] = [];
-      for (let i = 0; i < files.length; i++) {
-        const file = files[i];
-        // Create a data URL for preview (in production, upload to server first)
-        const reader = new FileReader();
-        reader.onloadend = () => {
-          if (reader.result) {
-            newUrls.push(reader.result as string);
-            if (newUrls.length === files.length) {
-              setPhotoUrls([...photoUrls, ...newUrls]);
-              setUploading(false);
-            }
-          }
-        };
-        reader.readAsDataURL(file);
-      }
+      const newUrls = await Promise.all(
+        Array.from(files).map((file) => resizeImageFileToDataUrl(file))
+      );
+      setPhotoUrls((prev) => [...prev, ...newUrls]);
     } catch {
+      setSubmitError('사진을 업로드하지 못했습니다. 다른 이미지를 선택해주세요.');
+    } finally {
+      input.value = '';
       setUploading(false);
     }
   };
@@ -77,26 +121,37 @@ export default function CompletePickupPage() {
 
     const weightNum = parseFloat(weight);
     if (isNaN(weightNum) || weightNum <= 0) {
+      setSubmitError('수거 무게를 입력하세요.');
       return;
     }
 
+    if (photoUrls.length === 0) {
+      setSubmitError('수거 사진을 1장 이상 등록하세요.');
+      return;
+    }
+
+    setSubmitError(null);
     completePickup({
       pickupId,
       data: {
         weight: weightNum,
-        photoUrls: photoUrls.length > 0 ? photoUrls : [],
+        photoUrls,
       },
     });
   };
 
   const errorMessage =
-    error instanceof Error
+    submitError
+      ? submitError
+      : error instanceof Error
       ? error.message
       : typeof error === 'string'
       ? error
       : error
       ? '수거 완료 처리에 실패했습니다'
       : null;
+  const weightValid = Number.parseFloat(weight) > 0;
+  const photoValid = photoUrls.length > 0;
 
   return (
     <div className="p-6">
@@ -144,7 +199,7 @@ export default function CompletePickupPage() {
 
           <div className="mb-6">
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              수거 사진
+              수거 사진 <span className="text-red-500">*</span>
             </label>
             
             {/* File Upload */}
@@ -157,7 +212,7 @@ export default function CompletePickupPage() {
                   <p className="mb-2 text-sm text-gray-500">
                     <span className="font-semibold">클릭하여 업로드</span> 또는 드래그 앤 드롭
                   </p>
-                  <p className="text-xs text-gray-500">PNG, JPG, GIF (최대 10MB)</p>
+                  <p className="text-xs text-gray-500">PNG, JPG, GIF (자동 리사이즈)</p>
                 </div>
                 <input
                   type="file"
@@ -228,7 +283,7 @@ export default function CompletePickupPage() {
           <div className="flex gap-3 pt-4 border-t border-gray-200">
             <button
               type="submit"
-              disabled={submitting || !weight}
+              disabled={submitting || uploading || !weightValid || !photoValid}
               className="flex-1 px-6 py-3 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors"
             >
               {submitting ? '처리 중...' : '완료 처리'}

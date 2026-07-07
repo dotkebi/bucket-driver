@@ -1,10 +1,13 @@
 'use client';
 
 import {useGetPickupsByStatus} from '@/src/api/generated/드라이버-수거-관리/드라이버-수거-관리';
+import type { DriverPickupItem } from '@/src/api/models';
+import { normalizeList } from '@/src/api/normalize-list';
 import Link from 'next/link';
 
 export default function CompletedPickupsPage() {
-  const { data: pickups = [], isLoading, error } = useGetPickupsByStatus('COMPLETED');
+  const { data, isLoading, error } = useGetPickupsByStatus('COMPLETED');
+  const pickups = normalizeList<DriverPickupItem>(data);
 
   if (isLoading) {
     return (

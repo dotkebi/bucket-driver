@@ -5,13 +5,15 @@ import {
   useGetAssignedPickups,
   useGetPickupsByStatus
 } from '@/src/api/generated/드라이버-수거-관리/드라이버-수거-관리';
+import type { DriverPickupItem } from '@/src/api/models';
+import { normalizeList } from '@/src/api/normalize-list';
 
 export default function Home() {
   const { data: assignedData } = useGetAssignedPickups();
   const { data: completedData } = useGetPickupsByStatus('COMPLETED');
 
-  const assignedPickups = Array.isArray(assignedData) ? assignedData : [];
-  const completedPickups = Array.isArray(completedData) ? completedData : [];
+  const assignedPickups = normalizeList<DriverPickupItem>(assignedData);
+  const completedPickups = normalizeList<DriverPickupItem>(completedData);
 
   return (
     <div className="p-6">

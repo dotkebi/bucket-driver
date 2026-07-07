@@ -66,7 +66,6 @@ export default function CompletePickupPage() {
   
   const [weight, setWeight] = useState('');
   const [photoUrls, setPhotoUrls] = useState<string[]>([]);
-  const [photoInput, setPhotoInput] = useState('');
   const [uploading, setUploading] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
 
@@ -83,14 +82,6 @@ export default function CompletePickupPage() {
       },
     },
   });
-
-  const addPhotoUrl = () => {
-    if (photoInput.trim()) {
-      setPhotoUrls((prev) => [...prev, photoInput.trim()]);
-      setPhotoInput('');
-      setSubmitError(null);
-    }
-  };
 
   const removePhotoUrl = (index: number) => {
     setPhotoUrls((prev) => prev.filter((_, i) => i !== index));
@@ -223,29 +214,6 @@ export default function CompletePickupPage() {
                   disabled={uploading}
                 />
               </label>
-            </div>
-
-            {/* URL Input */}
-            <div className="mb-4">
-              <p className="text-sm text-gray-600 mb-2">또는 URL로 추가:</p>
-              <div className="flex gap-2">
-                <input
-                  type="url"
-                  value={photoInput}
-                  onChange={(e) => setPhotoInput(e.target.value)}
-                  className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  placeholder="https://example.com/photo.jpg"
-                  disabled={uploading}
-                />
-                <button
-                  type="button"
-                  onClick={addPhotoUrl}
-                  disabled={uploading || !photoInput.trim()}
-                  className="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors"
-                >
-                  추가
-                </button>
-              </div>
             </div>
 
             {/* Photo Preview */}
